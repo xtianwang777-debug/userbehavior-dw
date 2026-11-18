@@ -1,10 +1,11 @@
 import csv
+import os
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW = ROOT / 'data' / 'raw' / 'UserBehavior.csv'
+RAW = Path(os.environ.get('USERBEHAVIOR_RAW', str(ROOT / 'data' / 'raw' / 'UserBehavior.csv')))
 ADS = ROOT / 'output' / 'ads'
 DOCS = ROOT / 'docs'
 START_DATE = '2017-11-25'

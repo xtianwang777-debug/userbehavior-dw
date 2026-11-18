@@ -1,4 +1,7 @@
-param([switch]$Demo)
+param(
+  [switch]$Demo,
+  [string]$RawPath = $env:USERBEHAVIOR_RAW
+)
 $ErrorActionPreference='Stop'
 $Root=Split-Path -Parent $MyInvocation.MyCommand.Path
 $Py=$env:PYSPARK_PYTHON
@@ -12,11 +15,15 @@ if(Test-Path $Hadoop){$env:HADOOP_HOME=$Hadoop; $env:HADOOP_HOME_DIR=$Hadoop; $e
 $env:PYSPARK_PYTHON=$Py
 $env:PYSPARK_DRIVER_PYTHON=$Py
 $env:SPARK_HOME=Join-Path $Root '.venv\Lib\site-packages\pyspark'
+if($RawPath){
+  if(-not (Test-Path $RawPath)){ throw "raw data file not found: $RawPath" }
+  $env:USERBEHAVIOR_RAW=(Resolve-Path $RawPath).Path
+}
 function Run-Step([string]$script, [string[]]$args) {
   & $Py (Join-Path $Root $script) @args
   if($LASTEXITCODE -ne 0){ throw "step failed: $script" }
 }
-if($Demo -or -not (Test-Path (Join-Path $Root 'data\raw\UserBehavior.csv'))){
+if($Demo -or (-not $env:USERBEHAVIOR_RAW -and -not (Test-Path (Join-Path $Root 'data\raw\UserBehavior.csv')))){
   Run-Step 'src\00_generate_demo.py' @('--rows','120000')
 } else { Write-Output 'USE_EXISTING_RAW_DATA' }
 Run-Step 'src\01_ods_load.py' @()
@@ -27,4 +34,4 @@ Run-Step 'src\05_cross_validate.py' @()
 Run-Step 'src\07_validate.py' @()
 Run-Step 'src\08_tuning_benchmark.py' @()
 Run-Step 'src\06_charts.py' @()
-Write-Output 'DEMO_PIPELINE_PASS'
+Write-Output 'PIPELINE_PASS'

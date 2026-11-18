@@ -1,10 +1,11 @@
 from pathlib import Path
 import json
+import os
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW = ROOT / "data" / "raw" / "UserBehavior.csv"
+RAW = Path(os.environ.get("USERBEHAVIOR_RAW", str(ROOT / "data" / "raw" / "UserBehavior.csv")))
 DATA = ROOT / "data"
 DOCS = ROOT / "docs"
 OUTPUT = ROOT / "output"
@@ -12,18 +13,20 @@ START_DATE = "2017-11-25"
 END_DATE = "2017-12-03"
 
 def build_spark(app_name: str, shuffle_partitions: int = 200):
+    master = os.environ.get("SPARK_MASTER", "local[4]")
     return (SparkSession.builder
         .appName(app_name)
-        .master("local[*]")
+        .master(master)
         .config("spark.sql.shuffle.partitions", str(shuffle_partitions))
+        .config("spark.sql.files.maxPartitionBytes", "268435456")
         .config("spark.sql.session.timeZone", "UTC")
-        .config("spark.driver.memory", "4g")
+        .config("spark.driver.memory", os.environ.get("SPARK_DRIVER_MEMORY", "4g"))
         .config("spark.driver.host", "127.0.0.1")
         .config("spark.driver.bindAddress", "127.0.0.1")
         .config("spark.hadoop.hadoop.native.lib", "false")
         .config("spark.hadoop.io.native.lib.available", "false")
         .config("spark.sql.adaptive.enabled", "true")
-        .config("spark.sql.parquet.compression.codec", "snappy")
+        .config("spark.sql.parquet.compression.codec", os.environ.get("SPARK_PARQUET_CODEC", "snappy"))
         .getOrCreate())
 
 def read_raw(spark, path=None):
@@ -49,4 +52,10 @@ def csv_export(df, name):
     for p in out.glob("_SUCCESS"):
         p.unlink(missing_ok=True)
     return out
+
+def write_parquet(df, path, partition_col="dt"):
+    writer = df.write.mode("overwrite")
+    if os.environ.get("SPARK_PARTITIONED_OUTPUT", "true").lower() in {"1", "true", "yes"}:
+        writer = writer.partitionBy(partition_col)
+    writer.parquet(str(path))
 

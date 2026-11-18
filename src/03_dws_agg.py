@@ -1,5 +1,5 @@
 import argparse, time, json
-from utils import build_spark, DATA, DOCS
+from utils import build_spark, write_parquet, DATA, DOCS
 from pyspark.sql import functions as F
 
 p=argparse.ArgumentParser(); p.add_argument('--shuffle',type=int,default=400); a=p.parse_args()
@@ -12,7 +12,7 @@ try:
     from pyspark.sql.window import Window
     w=Window.partitionBy('dt'); cat=cat.withColumn('category_buy_share',F.when(F.sum('buy_cnt').over(w)>0,F.col('buy_cnt')/F.sum('buy_cnt').over(w)).otherwise(F.lit(0.0)))
     checks={'user_grain_duplicate_keys':user.groupBy('user_id','dt').count().filter('count>1').count(),'item_grain_duplicate_keys':item.groupBy('item_id','dt').count().filter('count>1').count(),'category_grain_duplicate_keys':cat.groupBy('category_id','dt').count().filter('count>1').count()}
-    for df,name in [(user,'user_agg_1d'),(item,'item_agg_1d'),(cat,'category_agg_1d')]: df.write.mode('overwrite').partitionBy('dt').parquet(str(DATA/'dws'/name))
+    for df,name in [(user,'user_agg_1d'),(item,'item_agg_1d'),(cat,'category_agg_1d')]: write_parquet(df, DATA/'dws'/name)
     DOCS.mkdir(exist_ok=True); (DOCS/'grain_checks.json').write_text(json.dumps(checks,ensure_ascii=False,indent=2),encoding='utf-8')
     print({'elapsed_seconds':round(time.perf_counter()-t,3),'shuffle_partitions':a.shuffle,'user_rows':user.count(),'item_rows':item.count(),'category_rows':cat.count(),'checks':checks})
 finally: spark.stop()

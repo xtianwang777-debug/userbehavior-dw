@@ -1,6 +1,6 @@
 # 淘宝用户行为离线数仓
 
-这是一个可在本地 `local[*]` 模式运行的 PySpark 离线数仓项目，按 ODS → DWD → DWS → ADS 四层组织淘宝用户行为数据。项目代码同时提供一个可重复生成的小型演示数据集，便于没有 1 亿条原始数据时先跑通全链路。
+这是一个可在本地 `local[4]` 模式运行的 PySpark 离线数仓项目，按 ODS → DWD → DWS → ADS 四层组织淘宝用户行为数据。项目代码同时提供一个可重复生成的小型演示数据集，便于先验证全链路。
 
 ## 项目结构
 
@@ -12,7 +12,7 @@ userbehavior-dw/
 │   ├── 02_dwd_clean.py      # 清洗、去重、质量统计
 │   ├── 03_dws_agg.py        # 用户/商品/类目三张汇总表
 │   ├── 04_ads_metrics.py    # 五类业务指标
-│   ├── 05_cross_validate.py # Pandas 与 Spark 交叉验证
+│   ├── 05_cross_validate.py # 独立计算与 Spark 交叉验证
 │   ├── 06_charts.py         # 生成 4 张图
 │   ├── 07_validate.py       # ADS 结果检查
 │   ├── 08_tuning_benchmark.py # shuffle/broadcast 实验
@@ -42,6 +42,15 @@ powershell -ExecutionPolicy Bypass -File .\run_demo.ps1
 
 Windows 运行前请安装 Java 8/11/17 并设置 `JAVA_HOME`；Linux 服务器直接使用系统 Java 和 `python3` 即可。
 
+## 真实样本运行结果
+
+本次从阿里 UserBehavior 全量文件中提取前 1,000,000 行真实记录进行本地验证；全量文件约 3.67 GB，原始文件和样本均不提交到 GitHub。运行结果见 [docs/real_sample_results.md](docs/real_sample_results.md)。
+
+- ODS：1,000,000 行。
+- DWD：987,370 行，过滤 12,630 行，过滤率 1.263%。
+- DWS：用户 68,307 行、商品 672,649 行、类目 30,354 行。
+- ADS：5 张指标表全部产出，交叉验证和结果校验均通过。
+
 ## 业务指标
 
 - DAU：当日去重活跃用户数。
@@ -55,7 +64,13 @@ Windows 运行前请安装 Java 8/11/17 并设置 `JAVA_HOME`；Linux 服务器�
 
 ## 真实数据运行注意
 
-演示数据只用于验证程序逻辑，不代表淘宝全量数据结论。将真实 CSV 放入 `data/raw/UserBehavior.csv` 后重新执行四个脚本，简历中的数据量、过滤率、耗时和指标必须使用真实运行结果填写。
+演示数据只用于验证程序逻辑，不代表淘宝全量数据结论。真实 CSV 可以放入 `data/raw/UserBehavior.csv`，也可以通过 `-RawPath` 指定外部文件：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\run_demo.ps1 -RawPath "H:\dw-demo\data\UserBehavior.csv"
+```
+
+运行结束后，ODS、DWD、DWS、ADS 结果和校验文档会被更新。
 
 
 
