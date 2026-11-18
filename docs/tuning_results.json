@@ -1,0 +1,20 @@
+{
+  "shuffle_200": {
+    "shuffle_partitions": 200,
+    "rows": 36,
+    "elapsed_seconds": 0.741
+  },
+  "shuffle_400": {
+    "shuffle_partitions": 400,
+    "rows": 36,
+    "elapsed_seconds": 0.292
+  },
+  "join_regular": {
+    "rows": 119955,
+    "elapsed_seconds": 0.662
+  },
+  "join_broadcast": {
+    "rows": 119955,
+    "elapsed_seconds": 0.511
+  }
+}

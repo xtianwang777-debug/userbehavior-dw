@@ -1,0 +1,18 @@
+{
+  "ods_rows": 120007,
+  "dwd_rows": 119955,
+  "time_invalid_rows": 25,
+  "null_rows": 22,
+  "duplicate_rows": 5,
+  "filtered_rows": 52,
+  "filter_rate": 0.00043331,
+  "null_rates": {
+    "user_id": 0.00015832,
+    "item_id": 9.166e-05,
+    "category_id": 0.0,
+    "behavior_type": 0.0,
+    "ts": 0.0
+  },
+  "dwd_duplicate_keys": 0,
+  "elapsed_seconds": 11.778
+}
