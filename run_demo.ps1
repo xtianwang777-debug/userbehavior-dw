@@ -11,6 +11,7 @@ $Hadoop=Join-Path $Root 'tools\hadoop'
 if(Test-Path $Hadoop){$env:HADOOP_HOME=$Hadoop; $env:HADOOP_HOME_DIR=$Hadoop; $env:PATH="$Hadoop\bin;$env:PATH"}
 $env:PYSPARK_PYTHON=$Py
 $env:PYSPARK_DRIVER_PYTHON=$Py
+$env:SPARK_HOME=Join-Path $Root '.venv\Lib\site-packages\pyspark'
 function Run-Step([string]$script, [string[]]$args) {
   & $Py (Join-Path $Root $script) @args
   if($LASTEXITCODE -ne 0){ throw "step failed: $script" }

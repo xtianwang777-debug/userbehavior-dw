@@ -20,6 +20,8 @@ def build_spark(app_name: str, shuffle_partitions: int = 200):
         .config("spark.driver.memory", "4g")
         .config("spark.driver.host", "127.0.0.1")
         .config("spark.driver.bindAddress", "127.0.0.1")
+        .config("spark.hadoop.hadoop.native.lib", "false")
+        .config("spark.hadoop.io.native.lib.available", "false")
         .config("spark.sql.adaptive.enabled", "true")
         .config("spark.sql.parquet.compression.codec", "snappy")
         .getOrCreate())

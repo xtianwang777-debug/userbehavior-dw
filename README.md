@@ -30,7 +30,7 @@ userbehavior-dw/
 - Python 3.9+
 - Java 8/11/17
 - PySpark 3.5+
-- Pandas、PyArrow、Matplotlib
+- PyArrow、Matplotlib；交叉验证脚本使用 Python 标准库 CSV
 
 Windows 本地运行建议先设置 `JAVA_HOME`；Linux 服务器可直接使用系统 Java。若使用真实数据，下载阿里天池 UserBehavior 数据集并放到 `data/raw/UserBehavior.csv`，文件不带表头，字段为 `user_id,item_id,category_id,behavior_type,timestamp`。
 
@@ -56,4 +56,7 @@ Windows 运行前请安装 Java 8/11/17 并设置 `JAVA_HOME`；Linux 服务器�
 ## 真实数据运行注意
 
 演示数据只用于验证程序逻辑，不代表淘宝全量数据结论。将真实 CSV 放入 `data/raw/UserBehavior.csv` 后重新执行四个脚本，简历中的数据量、过滤率、耗时和指标必须使用真实运行结果填写。
+
+
+
 
